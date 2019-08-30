@@ -5,17 +5,17 @@
   
 
   
-  <title>Hexo</title>
+  <title>李修文</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://yoursite.com/index.html">
-<meta property="og:site_name" content="Hexo">
+<meta property="og:title" content="李修文">
+<meta property="og:url" content="https://blog.csdn.net/wenxiukeke/index.html">
+<meta property="og:site_name" content="李修文">
 <meta property="og:locale" content="en">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hexo">
+<meta name="twitter:title" content="李修文">
   
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+    <link rel="alternate" href="/atom.xml" title="李修文" type="application/atom+xml">
   
   
     <link rel="icon" href="/favicon.png">
@@ -34,7 +34,7 @@
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
       <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
+        <a href="/" id="logo">李修文</a>
       </h1>
       
     </div>
@@ -54,13 +54,92 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://blog.csdn.net/wenxiukeke"></form>
       </div>
     </div>
   </div>
 </header>
       <div class="outer">
         <section id="main">
+  
+    <article id="post-SpringData系列一@Query注解及@Modifying注解" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/08/30/SpringData系列一@Query注解及@Modifying注解/" class="article-date">
+  <time datetime="2019-08-30T03:49:55.000Z" itemprop="datePublished">2019-08-30</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/08/30/SpringData系列一@Query注解及@Modifying注解/">SpringData系列一@Query注解及@Modifying注解â</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>很遗憾，这篇文章产生的初衷只是由于三个原因，第一，公司不忙，我太闲了，第二我是真的用到了，感觉这篇博文讲的不错，所以我想copy一遍<a href="https://www.cnblogs.com/zhaobingqing/p/6864223.html" target="_blank" rel="noopener">@Query注解及@Modifying注解</a>，第三，复习一遍。</p>
+<p>@Query注解查询适用于所查询的数据无法通过关键字查询得到结果的查询。这种查询可以摆脱像关键字查询那样的约束，将查询直接在相应的接口方法中声明，结构更为清晰，这是Spring Data的特有实现。</p>
+<ul>
+<li><strong>索引参数与命名参数</strong></li>
+</ul>
+<p> <strong>1. 索引参数如下所示，索引值从1开始，查询中”?X”个数需要与方法定义的参数个数相一致，并且顺序也要一致。</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@Query(&quot;SELECT p FROM Person p WHERE p.lastName = ?1 AND p.email = ?2&quot;)</span><br><span class="line">List&lt;Person&gt; testQueryAnnotationParams1(String lastName, String email);</span><br></pre></td></tr></table></figure>
+
+
+<p>注释：上面代码中的?1,?2表示参数的占位符，需要和方法中所传递的参数顺序一致。X是从1开始。</p>
+<p> <strong>2. 命名参数(推荐使用此方式)：可以定义好参数名，赋值时使用@Param(“参数名”),而不用管顺序。</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// 为@Query注解传递参数的方式1：命名参数</span><br><span class="line">@Query(&quot;SELECT p FROM Person p WHERE p.lastName = :lastName AND p.email = :email&quot;)</span><br><span class="line">List&lt;Person&gt; testQueryAnnotationParams2(@Param(&quot;email&quot;) String email, @Param(&quot;lastName&quot;) String lastName);</span><br></pre></td></tr></table></figure>
+
+<p>注释：上面代码中:lastName ,:email 表示为参数命名，方法中所传递的参数使用@Param注解标识命名参数。这种方式不用管参数的顺序。</p>
+<p><strong>3. 含有LIKE关键字的查询</strong></p>
+<p>方式1：可以在占位符上添加”%”,这样在查询方法中就不用添加”%”</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// like查询 Spring Date 允许在占位符上添加%</span><br><span class="line">@Query(&quot;SELECT p FROM Person p WHERE p.lastName LIKE %?1% OR p.email LIKE %?2%&quot;)</span><br><span class="line">List&lt;Person&gt; testQueryAnnotationLikeParam(String lastName, String email);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">    public void testAnnoationParams3() &#123;</span><br><span class="line">        List&lt;Person&gt; persons = personRepsitory.testQueryAnnotationLikeParam(&quot;A&quot;, &quot;A@126.com&quot;);</span><br><span class="line">        System.out.println(persons);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>方式2：不在占位符上添加”%”,这样就必须在查询方法的参数上添加”%”</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// like查询</span><br><span class="line">     @Query(&quot;SELECT p FROM Person p WHERE p.lastName LIKE ?1 OR p.email LIKE ?2&quot;)</span><br><span class="line">     List&lt;Person&gt; testQueryAnnotationLikeParam2(String lastName, String email);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">     public void testAnnoationParams4() &#123;</span><br><span class="line">         List&lt;Person&gt; persons = personRepsitory.testQueryAnnotationLikeParam2(&quot;%A%&quot;, &quot;%A@126.com%&quot;);</span><br><span class="line">         System.out.println(persons);</span><br><span class="line">     &#125;</span><br></pre></td></tr></table></figure>
+
+<p>方式3：在命名参数上添加”%”</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// like查询 使用命名参数</span><br><span class="line">    @Query(&quot;SELECT p FROM Person p WHERE p.lastName LIKE %:lastName% OR p.email LIKE %:email%&quot;)</span><br><span class="line">    List&lt;Person&gt; testQueryAnnotationLikeParam3(@Param(&quot;email&quot;) String email, @Param(&quot;lastName&quot;) String lastName);</span><br></pre></td></tr></table></figure>
+
+<p><strong>4. 使用原生SQL进行查询</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">     * 设置nativeQuery=true 即可以使用原生的SQL进行查询</span><br><span class="line">     * @return</span><br><span class="line">     */</span><br><span class="line">    @Query(value = &quot;SELECT count(id) FROM jpa_persons&quot;, nativeQuery = true)</span><br><span class="line">    long getTotalCount();</span><br></pre></td></tr></table></figure>
+
+<p>注释：当设置nativeQuery=true即可以使用原生SQL进行查询</p>
+<ul>
+<li><strong>@Modifying注解</strong><ol>
+<li>在@Query注解中编写JPQL实现DELETE和UPDATE操作的时候必须加上@modifying注解，以通知Spring Data 这是一个DELETE或UPDATE操作。</li>
+<li>UPDATE或者DELETE操作需要使用事务，此时需要 定义Service层，在Service层的方法上添加事务操作。</li>
+<li>注意JPQL不支持INSERT操作。</li>
+</ol>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@Transactional</span><br><span class="line">     @Modifying</span><br><span class="line">     @Query(&quot;UPDATE Person p SET p.email = :email WHERE p.id = :id&quot;)</span><br><span class="line">     void updatePersonEmail(@Param(&quot;id&quot;) Integer id, @Param(&quot;email&quot;) String email);</span><br></pre></td></tr></table></figure>
+
+<p>以上方法，那个like这里，还没有使用过，like查询，不知道这里是否是模糊查询，还没有测试过，不过，之前听别人说，sql语句中不建议用模糊查询，会对数据库产生很大压力，对数据库不友好。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://blog.csdn.net/wenxiukeke/2019/08/30/SpringData系列一@Query注解及@Modifying注解/" data-id="cjzxw4yby0000qouer401ps9u" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
   
     <article id="post-springboot-indexdb" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
@@ -88,7 +167,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/08/26/springboot-indexdb/" data-id="cjzt9b3h40001k0uerk39kh9c" class="article-share-link">Share</a>
+      <a data-url="https://blog.csdn.net/wenxiukeke/2019/08/26/springboot-indexdb/" data-id="cjzxw4ycx0003qoue31f8l435" class="article-share-link">Share</a>
       
       
     </footer>
@@ -129,7 +208,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/08/26/indexdb/" data-id="cjzt9b3gy0000k0uegh18g62k" class="article-share-link">Share</a>
+      <a data-url="https://blog.csdn.net/wenxiukeke/2019/08/26/indexdb/" data-id="cjzxw4yci0001qoue7do9uwdh" class="article-share-link">Share</a>
       
       
     </footer>
@@ -166,7 +245,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/08/21/myfirstblog/" data-id="cjzt9b3h60002k0uepb5chy9d" class="article-share-link">Share</a>
+      <a data-url="https://blog.csdn.net/wenxiukeke/2019/08/21/myfirstblog/" data-id="cjzxw4ycr0002qoue6srizjy5" class="article-share-link">Share</a>
       
       
     </footer>
@@ -215,7 +294,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/08/19/hello-world/" data-id="cjzt9b3j30005k0ueq2w2q2wd" class="article-share-link">Share</a>
+      <a data-url="https://blog.csdn.net/wenxiukeke/2019/08/19/hello-world/" data-id="cjzxw4yez0006qouebexpmvhp" class="article-share-link">Share</a>
       
       
     </footer>
@@ -256,6 +335,10 @@
       <ul>
         
           <li>
+            <a href="/2019/08/30/SpringData系列一@Query注解及@Modifying注解/">SpringData系列一@Query注解及@Modifying注解â</a>
+          </li>
+        
+          <li>
             <a href="/2019/08/26/springboot-indexdb/">springboot+indexdb</a>
           </li>
         
@@ -283,7 +366,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2019 John Doe<br>
+      &copy; 2019 smilexiu<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
